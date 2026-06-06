@@ -13,6 +13,16 @@ app.command("/manenti-hw", async ({ command, ack, respond }) => {
   await respond({ text: "Hello, World!" });
 });
 
+//TODO: Add mais no final do projeto
+app.command("/manenti-help", async ({ ack, respond }) => {
+  await ack();
+  await respond({
+    text: `Available Commands:
+/manenti-hw - Display "Hello, World!"
+/manenti-help - Show available commands`,
+  });
+});
+
 (async () => {
   await app.start();
   console.log("bot is running!");
