@@ -98,6 +98,42 @@ app.command("/manenti-pokemon", async ({ command, ack, respond }) => {
   }
 });
 
+app.command("/manenti-anime", async ({ command, ack, respond }) => {
+  await ack();
+  try {
+    const response = await axios.get(
+      `https://api.jikan.moe/v4/anime?q=${command.text}`,
+    );
+    const animeName = response.data.data[0].title;
+    const animeScore = response.data.data[0].score;
+    const qntEpisodes = response.data.data[0].episodes;
+    const imageUrl = response.data.data[0].images.jpg.image_url;
+
+    await respond({
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `*Anime name: ${animeName}*
+            *Score*: ${animeScore}
+            *Episodes*: ${qntEpisodes} episodes
+            `,
+          },
+        },
+        {
+          type: "image",
+          image_url: imageUrl,
+          alt_text: `Image of ${animeName}`,
+        },
+      ],
+    });
+  } catch (error) {
+    await respond({
+      text: `Sorry, I couldn't fetch an anime at the moment.\n error: ${error.message}`,
+    });
+  }
+});
 (async () => {
   await app.start();
   console.log("bot is running!");
