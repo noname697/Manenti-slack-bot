@@ -157,7 +157,7 @@ app.command("/manenti-joke", async ({ ack, respond }) => {
     const response = await axios.get(
       `https://v2.jokeapi.dev/joke/Any?type=single`,
     );
-    
+
     const joke = JSON.stringify(response.data.joke);
 
     await respond({
@@ -166,6 +166,119 @@ app.command("/manenti-joke", async ({ ack, respond }) => {
   } catch (error) {
     await respond({
       text: `Sorry, I couldn't fetch a joke at the moment.\n error: ${error.message}`,
+    });
+  }
+});
+
+app.command("/manenti-meme", async ({ ack, respond }) => {
+  await ack();
+  try {
+    const response = await axios.get(`https://api.imgflip.com/get_memes`);
+
+    const memes = response.data.data.memes;
+    const randomMeme = memes[Math.floor(Math.random() * memes.length)];
+
+    await respond({
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `*${randomMeme.name}*`,
+          },
+        },
+        {
+          type: "image",
+          image_url: randomMeme.url,
+          alt_text: randomMeme.name,
+        },
+      ],
+    });
+  } catch (error) {
+    await respond({
+      text: `Sorry, I couldn't fetch a meme at the moment.\n error: ${error.message}`,
+    });
+  }
+});
+
+app.command("/manenti-weather", async ({ command, ack, respond }) => {
+  await ack();
+
+  const city = command.text.trim();
+
+  if (!city) {
+    await respond({
+      text: "Please provide a city name. Usage: /manenti-weather [city name]",
+    });
+    return;
+  }
+  try {
+    const response = await axios.get(
+      `https://api.weatherapi.com/v1/current.json`,
+      {
+        params: {
+          key: process.env.WEATHER_API_KEY,
+          q: city,
+          aqi: "no",
+          lang: "en",
+        },
+      },
+    );
+    const location = response.data.location;
+    const current = response.data.current;
+
+    const weatherIcon = current.condition.icon.startsWith("//")
+      ? `https:${current.condition.icon}`
+      : current.condition.icon;
+
+    await respond({
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `*Weather in ${location.name}, ${location.region || location.country}*\n${current.condition.text}_`,
+          },
+          accessory: {
+            type: "image",
+            image_url: weatherIcon,
+            alt_text: current.condition.text,
+          },
+        },
+        {
+          type: "section",
+          fields: [
+            {
+              type: "mrkdwn",
+              text: `*Temperature:*\n${current.temp_c}°C`,
+            },
+            {
+              type: "mrkdwn",
+              text: `*Feels like:*\n${current.feelslike_c}°C`,
+            },
+            {
+              type: "mrkdwn",
+              text: `*Humidity:*\n${current.humidity}%`,
+            },
+            {
+              type: "mrkdwn",
+              text: `*Wind:*\n${current.wind_kph} km/h`,
+            },
+            {
+              type: "mrkdwn",
+              text: `*Rain:*\n${current.precip_mm} mm`,
+            },
+            {
+              type: "mrkdwn",
+              text: `*Updated:*\n${current.last_updated}`,
+            },
+          ],
+        },
+      ],
+    });
+  } catch (error) {
+    await respond({
+      text: `Sorry, I couldn't fetch the weather information at the moment.\n error: ${error.message}`,
     });
   }
 });
