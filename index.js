@@ -14,13 +14,20 @@ app.command("/manenti-hw", async ({ ack, respond }) => {
   await respond({ text: "Hello, World!" });
 });
 
-//TODO: Add mais no final do projeto
 app.command("/manenti-help", async ({ ack, respond }) => {
   await ack();
   await respond({
     text: `Available Commands:
 /manenti-hw - Display "Hello, World!"
-/manenti-help - Show available commands`,
+/manenti-help - Show available commands
+/manenti-cat - Get a random cat image
+/manenti-pokemon [pokemon name] - Get information about a specific Pokémon
+/manenti-anime [anime name] - Get information about a specific anime
+/manenti-quote - Get a random stoic quote
+/manenti-joke - Get a random joke
+/manenti-meme - Get a random meme
+/manenti-weather [city name] - Get current weather information for a city
+`,
   });
 });
 
