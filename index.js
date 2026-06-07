@@ -9,7 +9,7 @@ const app = new App({
   socketMode: true,
 });
 
-app.command("/manenti-hw", async ({ command, ack, respond }) => {
+app.command("/manenti-hw", async ({ ack, respond }) => {
   await ack();
   await respond({ text: "Hello, World!" });
 });
@@ -134,6 +134,42 @@ app.command("/manenti-anime", async ({ command, ack, respond }) => {
     });
   }
 });
+
+app.command("/manenti-quote", async ({ ack, respond }) => {
+  await ack();
+  try {
+    const response = await axios.get(`https://stoic.tekloon.net/stoic-quote`);
+    const quote = response.data.data.quote;
+
+    await respond({
+      text: `Stoic quote of the day:\n>${quote}`,
+    });
+  } catch (error) {
+    await respond({
+      text: `Sorry, I couldn't fetch a quote at the moment.\n error: ${error.message}`,
+    });
+  }
+});
+
+app.command("/manenti-joke", async ({ ack, respond }) => {
+  await ack();
+  try {
+    const response = await axios.get(
+      `https://v2.jokeapi.dev/joke/Any?type=single`,
+    );
+    
+    const joke = JSON.stringify(response.data.joke);
+
+    await respond({
+      text: `Here's a joke for you:\n>${joke}`,
+    });
+  } catch (error) {
+    await respond({
+      text: `Sorry, I couldn't fetch a joke at the moment.\n error: ${error.message}`,
+    });
+  }
+});
+
 (async () => {
   await app.start();
   console.log("bot is running!");
